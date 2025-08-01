@@ -7,8 +7,8 @@
   <style>
     body {
       font-family: "Cairo", Arial, sans-serif;
-      background: linear-gradient(135deg, #4facfe, #00f2fe);
-      color: #fff;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      color: #333;
       margin: 0;
       padding: 0;
       display: flex;
@@ -20,15 +20,15 @@
       width: 95%;
       max-width: 550px;
       text-align: center;
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
       padding: 25px;
       border-radius: 20px;
-      box-shadow: 0px 8px 25px rgba(0,0,0,0.4);
+      box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
       animation: fadeIn 1s ease;
     }
     h1, h2 {
-      color: #000000;
+      color: #2c3e50;
       margin-bottom: 15px;
     }
     input, button {
@@ -37,41 +37,47 @@
       margin: 10px 0;
       font-size: 16px;
       border-radius: 10px;
-      border: none;
+      border: 1px solid #ccc;
       transition: transform 0.2s, background 0.3s;
     }
     button {
-      background: #673ab7;
+      background: #4a90e2;
       color: white;
       font-weight: bold;
       cursor: pointer;
+      border: none;
     }
     button:hover {
-      background: #5e35b1;
+      background: #357ABD;
       transform: scale(1.05);
     }
     .hidden { display: none; }
-    .lives span {
-      font-size: 20px;
-      margin: 0 4px;
-      color: #000000;
+    .lives {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #e74c3c;
     }
     .options button {
       width: 100%;
       margin: 5px 0;
-      background: #3949ab;
+      background: #dfe6e9;
+      color: #2c3e50;
     }
     .options button:hover {
-      background: #303f9f;
+      background: #b2bec3;
+    }
+    .options button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
     .timer {
       font-size: 18px;
       margin-bottom: 10px;
-      color: #000000;
+      color: #16a085;
     }
     .progress-bar {
       height: 12px;
-      background: #81c784;
+      background: #4a90e2;
       border-radius: 6px;
       margin-bottom: 15px;
       transition: width 1s linear;
@@ -85,7 +91,7 @@
     .score {
       font-size: 18px;
       margin: 10px 0;
-      color: #000000;
+      color: #2980b9;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -97,10 +103,6 @@
       50% { transform: translateX(5px); }
       75% { transform: translateX(-5px); }
       100% { transform: translateX(0); }
-    }
-    @media (max-width: 480px) {
-      body { padding: 5px; }
-      .container { width: 100%; padding: 15px; }
     }
   </style>
 </head>
@@ -119,7 +121,7 @@
     <!-- Rules Page -->
     <div id="rules" class="hidden">
       <h2>قواعد اللعبة</h2>
-      <ul style="text-align:right; direction:rtl; font-size:16px; line-height:1.6;">
+      <ul style="text-align:right; direction:rtl; font-size:16px; line-height:1.6; color:#555;">
         <li>عندك وقت محدد للمسابقة كلها.</li>
         <li>٣ محاولات (Lives) فقط.</li>
         <li>الإجابة الغلط تخصم وقت أو محاولة.</li>
@@ -183,7 +185,6 @@
     let totalTime = 120; 
     let time = totalTime;
     let timer;
-    let answered = false;
 
     const correctSound = document.getElementById("correctSound");
     const wrongSound = document.getElementById("wrongSound");
@@ -227,39 +228,41 @@
       q.options.forEach((opt, index) => {
         let btn = document.createElement("button");
         btn.innerText = opt;
-        btn.onclick = () => checkAnswer(index);
+        btn.onclick = () => checkAnswer(index, btn);
         optionsDiv.appendChild(btn);
       });
       document.getElementById("feedback").innerText = "";
       document.getElementById("nextBtn").classList.add("hidden");
-      answered = false;
     }
 
-    function checkAnswer(index) {
-      if(answered) return;
-      answered = true;
+    function checkAnswer(index, btn) {
       let q = questions[currentQuestion];
       if(index === q.answer) {
         score += 10;
         document.getElementById("feedback").innerText = "إجابة صحيحة: " + q.note;
-        document.getElementById("feedback").style.color = "#81c784";
+        document.getElementById("feedback").style.color = "#16a085";
         correctSound.play();
+        disableOptions();
+        document.getElementById("nextBtn").classList.remove("hidden");
       } else {
         lives--;
         time -= 10;
         document.getElementById("livesCount").innerText = lives;
         document.getElementById("feedback").innerText = "إجابة خاطئة! حاول مرة أخرى.";
-        document.getElementById("feedback").style.color = "#ff8a65";
+        document.getElementById("feedback").style.color = "#e74c3c";
         wrongSound.play();
+        btn.disabled = true;
         document.querySelector(".container").style.animation = "shake 0.5s";
         setTimeout(()=>{document.querySelector(".container").style.animation="";},500);
         if(lives <= 0) {
           endGame();
-          return;
         }
       }
       document.getElementById("score").innerText = score;
-      document.getElementById("nextBtn").classList.remove("hidden");
+    }
+
+    function disableOptions() {
+      document.querySelectorAll("#options button").forEach(btn => btn.disabled = true);
     }
 
     function nextQuestion() {
