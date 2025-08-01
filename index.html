@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لعبة أسبوع الآلام</title>
+  <style>
+    body {
+      font-family: "Cairo", Arial, sans-serif;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      width: 95%;
+      max-width: 550px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0px 8px 25px rgba(0,0,0,0.4);
+      animation: fadeIn 1s ease;
+    }
+    h1, h2 {
+      color: #000000;
+      margin-bottom: 15px;
+    }
+    input, button {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      transition: transform 0.2s, background 0.3s;
+    }
+    button {
+      background: #673ab7;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #5e35b1;
+      transform: scale(1.05);
+    }
+    .hidden { display: none; }
+    .lives span {
+      font-size: 20px;
+      margin: 0 4px;
+      color: #000000;
+    }
+    .options button {
+      width: 100%;
+      margin: 5px 0;
+      background: #3949ab;
+    }
+    .options button:hover {
+      background: #303f9f;
+    }
+    .timer {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #000000;
+    }
+    .progress-bar {
+      height: 12px;
+      background: #81c784;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      transition: width 1s linear;
+    }
+    #feedback {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 10px 0;
+      min-height: 30px;
+    }
+    .score {
+      font-size: 18px;
+      margin: 10px 0;
+      color: #000000;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    @media (max-width: 480px) {
+      body { padding: 5px; }
+      .container { width: 100%; padding: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Welcome Page -->
+    <div id="welcome">
+      <h1>مسابقة أسبوع الآلام</h1>
+      <p>أدخل اسم الفريق وكود الخادم لبدء اللعبة</p>
+      <input type="text" id="teamName" placeholder="اسم الفريق">
+      <input type="password" id="teamCode" placeholder="كود الخادم">
+      <button onclick="goToRules()">ابدأ</button>
+    </div>
+
+    <!-- Rules Page -->
+    <div id="rules" class="hidden">
+      <h2>قواعد اللعبة</h2>
+      <ul style="text-align:right; direction:rtl; font-size:16px; line-height:1.6;">
+        <li>عندك وقت محدد للمسابقة كلها.</li>
+        <li>٣ محاولات (Lives) فقط.</li>
+        <li>الإجابة الغلط تخصم وقت أو محاولة.</li>
+        <li>بعد كل إجابة صحيحة هتظهر ملاحظة شارحة.</li>
+        <li>اضغط "التالي" للانتقال للسؤال الجديد.</li>
+      </ul>
+      <button onclick="startGame()">ابدأ اللعبة</button>
+    </div>
+
+    <!-- Game Page -->
+    <div id="game" class="hidden">
+      <div class="timer">الوقت المتبقي: <span id="time">120</span> ثانية</div>
+      <div class="progress-bar" id="progress"></div>
+      <div class="lives">Lives: <span id="livesCount">3</span></div>
+      <div class="score">النقاط: <span id="score">0</span></div>
+      <h2 id="questionText"></h2>
+      <div class="options" id="options"></div>
+      <p id="feedback"></p>
+      <button id="nextBtn" class="hidden" onclick="nextQuestion()">التالي</button>
+    </div>
+
+    <!-- End Page -->
+    <div id="end" class="hidden">
+      <h2>انتهت اللعبة!</h2>
+      <p id="finalScore"></p>
+      <button onclick="location.reload()">العب مرة أخرى</button>
+    </div>
+
+  </div>
+
+  <!-- الأصوات -->
+  <audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg"></audio>
+  <audio id="endSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+  <script>
+    const questions = [
+      {
+        text: "في يوم أحد الشعانين، دخل المسيح أورشليم راكبًا على:",
+        options: ["حصان", "جمل", "جحش", "عربة"],
+        answer: 2,
+        note: "دخل المسيح أورشليم راكبًا على جحش ليعلن تواضعه."
+      },
+      {
+        text: "رتب هذه الأحداث: (أ) العشاء الأخير (ب) القبض على المسيح (ج) غسل الأرجل",
+        options: ["أ-ب-ج", "ج-أ-ب", "ب-أ-ج", "أ-ج-ب"],
+        answer: 1,
+        note: "المسيح غسل الأرجل ثم العشاء الأخير ثم القبض عليه."
+      },
+      {
+        text: "اكمل الآية: 'أحبوا ...'",
+        options: ["أنفسكم", "أعداءكم", "أموالكم", "أصدقاءكم"],
+        answer: 1,
+        note: "قال المسيح: أحبوا أعداءكم."
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let lives = 3;
+    let totalTime = 120; 
+    let time = totalTime;
+    let timer;
+    let answered = false;
+
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const endSound = document.getElementById("endSound");
+
+    function goToRules() {
+      if(document.getElementById("teamName").value.trim()==="") {
+        alert("من فضلك أدخل اسم الفريق");
+        return;
+      }
+      document.getElementById("welcome").classList.add("hidden");
+      document.getElementById("rules").classList.remove("hidden");
+    }
+
+    function startGame() {
+      document.getElementById("rules").classList.add("hidden");
+      document.getElementById("game").classList.remove("hidden");
+      loadQuestion();
+      timer = setInterval(updateTime, 1000);
+    }
+
+    function updateTime() {
+      if(time > 0) {
+        time--;
+        document.getElementById("time").innerText = time;
+        document.getElementById("progress").style.width = (time/totalTime*100) + "%";
+      } else {
+        endGame();
+      }
+    }
+
+    function loadQuestion() {
+      if(currentQuestion >= questions.length) {
+        endGame();
+        return;
+      }
+      let q = questions[currentQuestion];
+      document.getElementById("questionText").innerText = q.text;
+      let optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+      q.options.forEach((opt, index) => {
+        let btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(index);
+        optionsDiv.appendChild(btn);
+      });
+      document.getElementById("feedback").innerText = "";
+      document.getElementById("nextBtn").classList.add("hidden");
+      answered = false;
+    }
+
+    function checkAnswer(index) {
+      if(answered) return;
+      answered = true;
+      let q = questions[currentQuestion];
+      if(index === q.answer) {
+        score += 10;
+        document.getElementById("feedback").innerText = "إجابة صحيحة: " + q.note;
+        document.getElementById("feedback").style.color = "#81c784";
+        correctSound.play();
+      } else {
+        lives--;
+        time -= 10;
+        document.getElementById("livesCount").innerText = lives;
+        document.getElementById("feedback").innerText = "إجابة خاطئة! حاول مرة أخرى.";
+        document.getElementById("feedback").style.color = "#ff8a65";
+        wrongSound.play();
+        document.querySelector(".container").style.animation = "shake 0.5s";
+        setTimeout(()=>{document.querySelector(".container").style.animation="";},500);
+        if(lives <= 0) {
+          endGame();
+          return;
+        }
+      }
+      document.getElementById("score").innerText = score;
+      document.getElementById("nextBtn").classList.remove("hidden");
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      loadQuestion();
+    }
+
+    function endGame() {
+      clearInterval(timer);
+      endSound.play();
+      document.getElementById("game").classList.add("hidden");
+      document.getElementById("end").classList.remove("hidden");
+      document.getElementById("finalScore").innerText = 
+        `النتيجة النهائية: ${score} من ${questions.length*10}`;
+    }
+  </script>
+</body>
+</html>
