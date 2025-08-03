@@ -34,16 +34,29 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      transition: all 0.3s ease;
+    }
+    
+    body.dark {
+      background: url('https://png.pngtree.com/background/20230611/original/pngtree-cross-is-on-top-of-a-hill-next-to-the-dark-picture-image_3161459.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
     }
     
     .container {
       width: 100%;
       max-width: 800px;
-      background: white;
+      background: rgba(255, 255, 255, 0.95);
       border-radius: 16px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       overflow: hidden;
       position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    body.dark .container {
+      background: rgba(0, 0, 0, 0.85);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
     
     .header {
@@ -70,12 +83,15 @@
       align-items: center;
       justify-content: center;
       transition: all 0.3s;
+      z-index: 100;
     }
     
     .theme-toggle:hover {
       background: rgba(255, 255, 255, 0.3);
+      transform: rotate(30deg);
     }
     
+    /* باقي الستايلز كما هي بدون تغيير */
     .logos {
       display: flex;
       justify-content: center;
@@ -302,7 +318,7 @@
     }
   </style>
 </head>
-<body>
+<body class="light">
   <div class="container">
     <div class="header">
       <button class="theme-toggle" id="themeToggle">🌙</button>
@@ -313,7 +329,7 @@
       <h1>مسابقة أسبوع الآلام</h1>
     </div>
 
-    <!-- Welcome Page -->
+    <!-- باقي الكود كما هو بدون تغيير -->
     <div id="welcome" class="content">
       <p>أدخل اسم الفريق وكود الخادم لبدء اللعبة</p>
       <input type="text" id="teamName" placeholder="اسم الفريق">
@@ -444,7 +460,26 @@
     // عناصر الصفحة
     const themeToggle = document.getElementById('themeToggle');
     
-    // وظائف اللعبة
+    // تبديل الثيم
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      document.body.classList.toggle('light');
+      themeToggle.textContent = document.body.classList.contains('dark') ? '🌞' : '🌙';
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    // تحميل الثيم المحفوظ
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark');
+      document.body.classList.remove('light');
+      themeToggle.textContent = '🌞';
+    } else {
+      document.body.classList.add('light');
+      document.body.classList.remove('dark');
+      themeToggle.textContent = '🌙';
+    }
+
+    // باقي دوال اللعبة كما هي بدون تغيير
     function goToRules() {
       teamName = document.getElementById('teamName').value.trim();
       teamCode = document.getElementById('teamCode').value.trim();
@@ -624,12 +659,6 @@
       currentQuestion = 0;
       loadQuestion();
     }
-    
-    // تبديل الثيم
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('dark-theme');
-      themeToggle.textContent = document.body.classList.contains('dark-theme') ? '🌞' : '🌙';
-    });
   </script>
 </body>
 </html>
