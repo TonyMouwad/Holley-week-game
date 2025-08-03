@@ -16,8 +16,11 @@
       --correct: #4CAF50;
       --wrong: #F44336;
       --hint: #FFC107;
+      --option-bg: #FFFFFF;
+      --option-text: #3E2723;
+      --option-border: #DDDDDD;
     }
-    
+      
     * {
       box-sizing: border-box;
       margin: 0;
@@ -41,6 +44,9 @@
       background: url('https://png.pngtree.com/background/20230611/original/pngtree-cross-is-on-top-of-a-hill-next-to-the-dark-picture-image_3161459.jpg') no-repeat center center fixed;
       background-size: cover;
       color: #fff;
+       --option-bg: rgba(255, 255, 255, 0.1);
+      --option-text: #FFFFFF;
+      --option-border: rgba(255, 255, 255, 0.2);
     }
     
     .container {
@@ -233,9 +239,10 @@
       margin: 20px 0;
     }
     
-    .option {
-      background: white;
-      border: 1px solid #ddd;
+.option {
+      background: var(--option-bg);
+      color: var(--option-text);
+      border: 1px solid var(--option-border);
       border-radius: 8px;
       padding: 15px;
       text-align: right;
@@ -245,9 +252,9 @@
     
     .option:hover {
       border-color: var(--primary);
-      background: rgba(109, 76, 65, 0.05);
+      background: rgba(109, 76, 65, 0.1);
     }
-    
+
     .option.correct {
       background: rgba(76, 175, 80, 0.1);
       border-color: var(--correct);
@@ -286,6 +293,8 @@
       display: flex;
       justify-content: space-between;
       margin-top: 25px;
+      flex-direction: row-reverse; 
+
     }
     
     .hidden {
@@ -324,7 +333,9 @@
       <button class="theme-toggle" id="themeToggle">🌙</button>
       <div class="logos">
         <img src="1.png" alt="Logo 1">
-        <img src="3.jpg" alt="Logo 2">
+        <img src="2.jpg" alt="Logo 2">
+        <img src="3.png" alt="Logo 3">
+
       </div>
       <h1>مسابقة أسبوع الآلام</h1>
     </div>
