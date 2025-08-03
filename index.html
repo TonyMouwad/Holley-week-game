@@ -18,7 +18,7 @@
     }
     .container {
       width: 95%;
-      max-width: 550px;
+      max-width: 600px;
       text-align: center;
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(8px);
@@ -32,7 +32,6 @@
       margin-bottom: 15px;
     }
     input, button {
-      width: 90%;
       padding: 12px;
       margin: 10px 0;
       font-size: 16px;
@@ -46,6 +45,7 @@
       font-weight: bold;
       cursor: pointer;
       border: none;
+      min-width: 120px;
     }
     button:hover {
       background: #357ABD;
@@ -93,6 +93,11 @@
       margin: 10px 0;
       color: #2980b9;
     }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -103,6 +108,12 @@
       50% { transform: translateX(5px); }
       75% { transform: translateX(-5px); }
       100% { transform: translateX(0); }
+    }
+    .question-image {
+      max-width: 100%;
+      height: auto;
+      margin: 10px 0;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -125,8 +136,9 @@
         <li>عندك وقت محدد للمسابقة كلها.</li>
         <li>٣ محاولات (Lives) فقط.</li>
         <li>الإجابة الغلط تخصم وقت أو محاولة.</li>
+        <li>كل سؤال له نقاط، لو جاوبت من أول مرة تاخدها كاملة، من تاني محاولة نصها.</li>
         <li>بعد كل إجابة صحيحة هتظهر ملاحظة شارحة.</li>
-        <li>اضغط "التالي" للانتقال للسؤال الجديد.</li>
+        <li>اضغط "التالي" أو "السابق" للتنقل بين الأسئلة.</li>
       </ul>
       <button onclick="startGame()">ابدأ اللعبة</button>
     </div>
@@ -138,9 +150,15 @@
       <div class="lives">Lives: <span id="livesCount">3</span></div>
       <div class="score">النقاط: <span id="score">0</span></div>
       <h2 id="questionText"></h2>
+      <img id="questionImage" class="question-image hidden" alt="صورة السؤال">
+      <p style="color:#555;">النقاط: <span id="questionPoints"></span></p>
       <div class="options" id="options"></div>
       <p id="feedback"></p>
-      <button id="nextBtn" class="hidden" onclick="nextQuestion()">التالي</button>
+      <div class="nav-buttons">
+        <button id="prevBtn" onclick="prevQuestion()" class="hidden">السابق</button>
+        <button id="nextBtn" onclick="nextQuestion()" class="hidden">التالي</button>
+        <button id="finishBtn" onclick="confirmEnd()" class="hidden">إنهاء</button>
+      </div>
     </div>
 
     <!-- End Page -->
@@ -163,19 +181,25 @@
         text: "في يوم أحد الشعانين، دخل المسيح أورشليم راكبًا على:",
         options: ["حصان", "جمل", "جحش", "عربة"],
         answer: 2,
-        note: "دخل المسيح أورشليم راكبًا على جحش ليعلن تواضعه."
+        note: "دخل المسيح أورشليم راكبًا على جحش ليعلن تواضعه.",
+        points: 10,
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMRw9vIKLxybMKIm_A-rO8gIAsPheQhyWVdg&s"
       },
       {
         text: "رتب هذه الأحداث: (أ) العشاء الأخير (ب) القبض على المسيح (ج) غسل الأرجل",
         options: ["أ-ب-ج", "ج-أ-ب", "ب-أ-ج", "أ-ج-ب"],
         answer: 1,
-        note: "المسيح غسل الأرجل ثم العشاء الأخير ثم القبض عليه."
+        note: "المسيح غسل الأرجل ثم العشاء الأخير ثم القبض عليه.",
+        points: 15,
+        image: ""
       },
       {
         text: "اكمل الآية: 'أحبوا ...'",
         options: ["أنفسكم", "أعداءكم", "أموالكم", "أصدقاءكم"],
         answer: 1,
-        note: "قال المسيح: أحبوا أعداءكم."
+        note: "قال المسيح: أحبوا أعداءكم.",
+        points: 20,
+        image: ""
       }
     ];
 
@@ -185,6 +209,9 @@
     let totalTime = 120; 
     let time = totalTime;
     let timer;
+
+    let answeredCorrectly = Array(questions.length).fill(false);
+    let firstAttempt = Array(questions.length).fill(true);
 
     const correctSound = document.getElementById("correctSound");
     const wrongSound = document.getElementById("wrongSound");
@@ -217,34 +244,55 @@
     }
 
     function loadQuestion() {
-      if(currentQuestion >= questions.length) {
-        endGame();
-        return;
-      }
       let q = questions[currentQuestion];
       document.getElementById("questionText").innerText = q.text;
+      document.getElementById("questionPoints").innerText = q.points;
+
+      let img = document.getElementById("questionImage");
+      if(q.image) {
+        img.src = q.image;
+        img.classList.remove("hidden");
+      } else {
+        img.classList.add("hidden");
+      }
+
       let optionsDiv = document.getElementById("options");
       optionsDiv.innerHTML = "";
       q.options.forEach((opt, index) => {
         let btn = document.createElement("button");
         btn.innerText = opt;
         btn.onclick = () => checkAnswer(index, btn);
+        if(answeredCorrectly[currentQuestion]) btn.disabled = true;
         optionsDiv.appendChild(btn);
       });
-      document.getElementById("feedback").innerText = "";
-      document.getElementById("nextBtn").classList.add("hidden");
+
+      document.getElementById("feedback").innerText = answeredCorrectly[currentQuestion] ? 
+        "تمت الإجابة: " + q.note : "";
+
+      document.getElementById("prevBtn").classList.toggle("hidden", currentQuestion === 0);
+      document.getElementById("nextBtn").classList.toggle("hidden", !answeredCorrectly[currentQuestion] || currentQuestion === questions.length - 1);
+      document.getElementById("finishBtn").classList.toggle("hidden", currentQuestion !== questions.length - 1);
     }
 
     function checkAnswer(index, btn) {
       let q = questions[currentQuestion];
       if(index === q.answer) {
-        score += 10;
+        if(!answeredCorrectly[currentQuestion]) {
+          let earned = firstAttempt[currentQuestion] ? q.points : Math.floor(q.points / 2);
+          score += earned;
+          answeredCorrectly[currentQuestion] = true;
+        }
         document.getElementById("feedback").innerText = "إجابة صحيحة: " + q.note;
         document.getElementById("feedback").style.color = "#16a085";
         correctSound.play();
         disableOptions();
-        document.getElementById("nextBtn").classList.remove("hidden");
+        document.getElementById("nextBtn").classList.toggle("hidden", currentQuestion === questions.length - 1);
+
+        if(answeredCorrectly.every(a => a)) {
+          endGame();
+        }
       } else {
+        firstAttempt[currentQuestion] = false;
         lives--;
         time -= 10;
         document.getElementById("livesCount").innerText = lives;
@@ -270,13 +318,24 @@
       loadQuestion();
     }
 
+    function prevQuestion() {
+      currentQuestion--;
+      loadQuestion();
+    }
+
+    function confirmEnd() {
+      if(confirm("هل تريد إنهاء اللعبة أم مراجعة الأسئلة؟")) {
+        endGame();
+      }
+    }
+
     function endGame() {
       clearInterval(timer);
       endSound.play();
       document.getElementById("game").classList.add("hidden");
       document.getElementById("end").classList.remove("hidden");
       document.getElementById("finalScore").innerText = 
-        `النتيجة النهائية: ${score} من ${questions.length*10}`;
+        `النتيجة النهائية: ${score} من ${questions.reduce((a,q)=>a+q.points,0)}`;
     }
   </script>
 </body>
