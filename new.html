@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مسابقة أسبوع الآلام</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap">
+  <style>
+    :root {
+      --primary: #6D4C41;
+      --secondary: #8D6E63;
+      --accent: #D7CCC8;
+      --text: #3E2723;
+      --light: #EFEBE9;
+      --dark: #4E342E;
+      --correct: #4CAF50;
+      --wrong: #F44336;
+      --hint: #FFC107;
+      --option-bg: #FFFFFF;
+      --option-text: #3E2723;
+      --option-border: #DDDDDD;
+    }
+      
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background-color: var(--light);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    
+    body.dark {
+      background: url('https://png.pngtree.com/background/20230611/original/pngtree-cross-is-on-top-of-a-hill-next-to-the-dark-picture-image_3161459.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+       --option-bg: rgba(255, 255, 255, 0.1);
+      --option-text: #FFFFFF;
+      --option-border: rgba(255, 255, 255, 0.2);
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    body.dark .container {
+      background: rgba(0, 0, 0, 0.85);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      z-index: 100;
+    }
+    
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(30deg);
+    }
+    
+    /* باقي الستايلز كما هي بدون تغيير */
+    .logos {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 15px 0;
+    }
+    
+    .logos img {
+      height: 80px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    
+    h1, h2 {
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+    
+    .content {
+      padding: 25px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Tajawal', sans-serif;
+      font-size: 16px;
+      transition: border 0.3s;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-family: 'Tajawal', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background: rgba(109, 76, 65, 0.1);
+    }
+    
+    .rules-list {
+      list-style-type: none;
+      margin: 20px 0;
+    }
+    
+    .rules-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .rules-list li:before {
+      content: "•";
+      color: var(--primary);
+      font-size: 24px;
+    }
+    
+    .game-stats {
+      display: flex;
+      justify-content: space-between;
+      background: var(--accent);
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .progress-container {
+      width: 100%;
+      height: 10px;
+      background: #e0e0e0;
+      border-radius: 5px;
+      margin: 15px 0;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      width: 100%;
+      transition: width 0.3s;
+    }
+    
+    .question-container {
+      margin: 20px 0;
+    }
+    
+    .question-image {
+      width: 100%;
+      max-height: 250px;
+      object-fit: contain;
+      border-radius: 8px;
+      margin: 15px 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    
+.option {
+      background: var(--option-bg);
+      color: var(--option-text);
+      border: 1px solid var(--option-border);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: right;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .option:hover {
+      border-color: var(--primary);
+      background: rgba(109, 76, 65, 0.1);
+    }
+
+    .option.correct {
+      background: rgba(76, 175, 80, 0.1);
+      border-color: var(--correct);
+    }
+    
+    .option.wrong {
+      background: rgba(244, 67, 54, 0.1);
+      border-color: var(--wrong);
+    }
+    
+    .hint-container {
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px dashed var(--hint);
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+    }
+    
+    .feedback {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+    
+    .feedback.correct {
+      background: rgba(76, 175, 80, 0.1);
+      border-left: 4px solid var(--correct);
+    }
+    
+    .feedback.wrong {
+      background: rgba(244, 67, 54, 0.1);
+      border-left: 4px solid var(--wrong);
+    }
+    
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 25px;
+      flex-direction: row-reverse; 
+
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        border-radius: 0;
+      }
+      
+      .logos img {
+        height: 60px;
+      }
+      
+      .game-stats {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+    
+    .shake {
+      animation: shake 0.5s;
+    }
+  </style>
+</head>
+<body class="light">
+  <div class="container">
+    <div class="header">
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <div class="logos">
+        <img src="1.png" alt="Logo 1">
+        <img src="2.jpg" alt="Logo 2">
+        <img src="3.png" alt="Logo 3">
+
+      </div>
+      <h1>مسابقة أسبوع الآلام</h1>
+    </div>
+
+    <!-- باقي الكود كما هو بدون تغيير -->
+    <div id="welcome" class="content">
+      <p>أدخل اسم الفريق وكود الخادم لبدء اللعبة</p>
+      <input type="text" id="teamName" placeholder="اسم الفريق">
+      <input type="password" id="teamCode" placeholder="كود الخادم">
+      <button class="btn" onclick="goToRules()">ابدأ المسابقة</button>
+    </div>
+
+    <!-- Rules Page -->
+    <div id="rules" class="content hidden">
+      <h2>قواعد المسابقة</h2>
+      <ul class="rules-list">
+        <li>لديك وقت محدد للإجابة على جميع الأسئلة</li>
+        <li>تمتلك 3 محاولات فقط للإجابة</li>
+        <li>الإجابة الخاطئة تخفض الوقت أو عدد المحاولات</li>
+        <li>كل سؤال له نقاط، الإجابة الصحيحة من أول مرة تعطيك النقاط كاملة</li>
+        <li>بعد كل إجابة صحيحة تظهر ملاحظة توضيحية</li>
+        <li>يمكنك كشف تلميح مقابل خصم جزء من الوقت</li>
+      </ul>
+      <button class="btn" onclick="startGame()">بدء المسابقة</button>
+    </div>
+
+    <!-- Game Page -->
+    <div id="game" class="content hidden">
+      <div class="game-stats">
+        <div class="stat">
+          ⏳ <span id="time">120</span> ثانية
+        </div>
+        <div class="stat">
+          ❤️ <span id="livesCount">3</span> محاولات
+        </div>
+        <div class="stat">
+          ⭐ <span id="score">0</span> نقاط
+        </div>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-bar" id="progress"></div>
+      </div>
+      
+      <div class="question-container">
+        <h2 id="questionText"></h2>
+        <img id="questionImage" class="question-image hidden" alt="صورة السؤال">
+        <p>النقاط: <strong id="questionPoints"></strong></p>
+        
+        <div class="options" id="options"></div>
+        
+        <button id="hintBtn" class="btn btn-outline" onclick="showHint()">
+          🔍 كشف تلميح (-15 ثانية)
+        </button>
+        
+        <div id="hint" class="hint-container hidden"></div>
+        
+        <div id="feedback" class="feedback hidden"></div>
+      </div>
+      
+      <div class="nav-buttons">
+        <button id="prevBtn" class="btn btn-outline hidden" onclick="prevQuestion()">
+          السابق
+        </button>
+        <button id="nextBtn" class="btn hidden" onclick="nextQuestion()">
+          التالي
+        </button>
+        <button id="finishBtn" class="btn hidden" onclick="confirmEnd()">
+          إنهاء المسابقة
+        </button>
+      </div>
+    </div>
+
+    <!-- End Page -->
+    <div id="end" class="content hidden">
+      <h2>انتهت المسابقة!</h2>
+      <div id="finalScore" style="margin: 25px 0;"></div>
+      <button class="btn" onclick="reviewQuestions()">مراجعة الأسئلة</button>
+      <button class="btn btn-outline" onclick="location.reload()">مسابقة جديدة</button>
+    </div>
+  </div>
+
+  <!-- الأصوات -->
+  <audio id="correctSound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+  <audio id="wrongSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+  <audio id="endSound" src="https://www.soundjay.com/buttons/sounds/button-21.mp3"></audio>
+
+  <script>
+    // الأسئلة (تبقى كما هي)
+    const questions = [
+        {
+          text: "🔢 سؤال (Med)\nقبل البابا ديمتريوس الكرام، الأقباط كانوا بيحتفلوا بأسبوع الآلام كل قد إيه؟",
+          options: [
+            "كل 10 سنوات",
+            "كل 20 سنة",
+            "كل 33 سنة",
+            "كل 40 سنة"
+          ],
+          answer: 2,
+          note: "البابا ديمتريوس الكرام نظم أسبوع الآلام بشكل سنوي لأول مرة علشان يعيش الشعب الأحداث كل سنة.",
+          hint: "🕵️ الرقم ليه علاقة بعمر المسيح على الأرض.",
+          points: 10,
+          image: "https://www.swissinfo.ch/content/wp-content/uploads/sites/13/2017/04/afea8fa50f6a8a5334bb4bc409494739-image_doc-nk1gp-data.jpg?crop=0px,0px,511px,341px&w=880&ver=89161ff0"
+        },
+
+        {
+          text: "📖 سؤال (Med)\nالبابا غبريال بن تريك عمل دراسة كبيرة علشان ينظم قراءات أسبوع الآلام... تعرف ترتيبه كام في البطاركة؟",
+          options: [
+            "66",
+            "70",
+            "74",
+            "80"
+          ],
+          answer: 1,
+          note: "البابا غبريال بن تريك (البطريرك رقم 74) وضع ترتيب جديد لقراءات أسبوع الآلام بعد دراسة مستفيضة.",
+          hint: "🕵️ فكر في رقم سبعيني.",
+          points: 10,
+          image: "https://st-takla.org/Gallery/var/resizes/Clergy/Coptic-Popes/000-ai/www-st-takla-org--ai-coptic-orthodox-pope-070.jpg?m=1697811832"
+        },
+
+
+        {
+        text: "🔥 سؤال  (Med)\nفي وسط الكنيسة خلال أسبوع الآلام، بتلاقي صورة المسيح ومعاها ٣ شموع... إيه معنى التلاتة دول؟",
+        options: [
+          "باكر – تسبحة – مزمور",
+          "العهد القديم – المزامير – العهد الجديد",
+          "الكنيسة – الشعب – الكاهن",
+          "الآلام – القيامة – التجسد"
+        ],
+        answer: 1,
+        note: "المقصود بيها العهد القديم، المزامير، والعهد الجديد.",
+        hint: "🕵️ تخيل كتاب فيه ٣ أبواب: الأول وعود الله، الثاني تسبيح، الثالث مجيء المخلص.",
+        points: 15,
+        image: ""
+      },
+
+      {
+        text: "🌑 سؤال  (Low)\nفي أسبوع الآلام، الكنيسة كلها كأنها لابسة ثوب جديد... يا ترى إيه اللي بيتغطى على أعمدة الكنيسة؟",
+        options: [
+          "أقمشة حمراء",
+          "صلبان ذهبية",
+          "سُتور بيضاء",
+          "سُتور سوداء "
+        ],
+        answer: 3,
+        note: "الأعمدة تُغطى بستائر سوداء إشارة للحزن والمشاركة في آلام المسيح.",
+        hint: "🕵️ لون يغطي النور... نفس اللون اللي بيلبسه حد في جنازة.",
+        points: 10,
+        image: ""
+      },
+      {
+        text: "📖 سؤال  (Low)\nفي صلوات أسبوع الآلام، بنسمع حاجة اسمها \"الطرح\"... إمتى بيتقال؟",
+        options: [
+          "بعد الإنجيل",
+          "بعد النبوات مباشرة",
+          "بعد المزمور والإنجيل ",
+          "قبل تقديم الحمل"
+        ],
+        answer: 2,
+        note: "الطرح يُقال بعد المزمور والإنجيل كشرح وتفسير لهما.",
+        hint: "🕵️ اسمع الأول المزمور، بعده الإنجيل، وساعتها ييجي الطرح.",
+        points: 10,
+        image: ""
+      },
+      {
+        text: "🧭 سؤال (High)\nعاوز تمشي الرحلة الروحية صح؟ رتّب معايا خطوات القداس في أسبوع الآلام:\n\n1) النبوات\n2) ثوك تى تى جوم\n3) المزمور ومقدمة الإنجيل\n4) الطرح والختام\n5) الطلبة\n6) البركة",
+        options: [
+          "أ) 3 ثم 2 ثم 1 ثم 4 ثم 5 ثم 6",
+          "ب) 4 ثم 3 ثم 2 ثم 1 ثم 5 ثم 6",
+          "ج) 1 ثم 2 ثم 3 ثم 4 ثم 5 ثم 6 ",
+          "د) 4 ثم 5 ثم 6 ثم 3 ثم 2 ثم 1"
+        ],
+        answer: 2,
+        note: "الترتيب الصحيح: النبوات → ثوك تى تى جوم → المزمور ومقدمة الإنجيل → الطرح والختام → الطلبة → البركة.",
+        hint: "🕵️ لو بدأت من الآخر هتتلخبط... دور على البداية: أحداث متنبأ بيها → الشعب بيرد → الإنجيل يتقري → التفسير → الطلبة → النهاية.",
+        points: 25,
+        image: ""
+      },
+      {
+        text: "🔥 سؤال  (Med)\nطقس معين في الكنيسة يبدأ بقراءة \"النبوات\"... تعرف أي واحد؟",
+        options: [
+          "طقس القيامة",
+          "طقس البصخة ",
+          "طقس العيد",
+          "طقس الغروب"
+        ],
+        answer: 1,
+        note: "طقس البصخة يبدأ بقراءة النبوات، إشارة للعودة لجو العهد القديم.",
+        hint: "🕵️ فتّش عن الطقس اللي بيوديك للعهد القديم أول ما يبدأ.",
+        points: 15,
+        image: ""
+      },
+      {
+        text: "😶 سؤال  (High)\nمن ليلة الأربعاء، الكهنة والشعب ما بيتبادلش بينهم السلام... ليه؟",
+        options: [
+          "لأجل التركيز في الصلوات",
+          "بسبب وباء",
+          "لذكرى قبلة يهوذا ",
+          "لأجل التواضع"
+        ],
+        answer: 2,
+        note: "لأنها ذكرى قبلة يهوذا التي سلم بها المسيح للصلب.",
+        hint: "🕵️ افتكر ليلة فيها قبلة قلبت الدنيا كلها.",
+        points: 20,
+        image: ""
+      },
+        /// holy sunday
+        {
+        text: "في يوم أحد الشعانين، دخل المسيح أورشليم راكبًا على:",
+        options: ["حصان", "جمل", "جحش", "عربة"],
+        answer: 2,
+        note: "دخل المسيح أورشليم راكبًا على جحش ليعلن تواضعه.",
+        hint: "فكّر في رمز التواضع لا القوة.",
+        points: 10,
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMRw9vIKLxybMKIm_A-rO8gIAsPheQhyWVdg&s"
+      },
+      {
+        text: "📖 سؤال (High)\nفي صلاة الجناز العام يُقرأ جزء من (حزقيال ٣٧: ١–١٤) عن العظام اليابسة. اتحققت النبوة دي في العهد الجديد فين؟",
+        options: [
+          "١ كورنثوس ١٠:٧",
+          "٢ كورنثوس ٤:٧",
+          "١ كورنثوس ١٥:١–٢٣ "
+        ],
+        answer: 2,
+        note: "الرسول بولس في ١ كورنثوس ١٥ شرح قيامة الأموات، وده تحقيق مباشر لنبوة حزقيال عن العظام اليابسة.",
+        hint: "🕵️ دور على الإصحاح اللي بيكلم عن القيامة العامة.",
+        points: 20,
+        image: "ezekiel_bones.png"
+      },
+      {
+        text: "👼 سؤال (Med)\nفي طقس أحد الشعانين، الإنجيل الرابع من دورة الشعانين يُقرأ أمام أيقونة مين؟",
+        options: [
+          "الملاك الحارس",
+          "الملاك ميخائيل ",
+          "الملاك رفائيل"
+        ],
+        answer: 1,
+        note: "يُقرأ الإنجيل الرابع أمام أيقونة الملاك ميخائيل لأنه يتكلم عن عمل الملائكة يوم الدينونة.",
+        hint: "🕵️ افتكر رئيس جند الرب اللي بيقف دايمًا حامل ميزان الحق.",
+        points: 15,
+        image: "archangel_michael.png"
+      },
+      {
+        text: "🌿 سؤال (Low)\nكم عدد الأناجيل التي تُقرأ في دورة أحد الشعانين؟",
+        options: [
+          "١٢ — عددهم نفس عدد التلاميذ ",
+          "٧ — عددهم نفس عدد أيام الخليقة",
+          "٣ — نفس عدد الأيام اللي قضاها يونان في بطن الحوت"
+        ],
+        answer: 0,
+        note: "يُقرأ في الدورة ١٢ إنجيلاً، رمزًا للتلاميذ الاثني عشر اللي بشروا العالم كله بالمسيح.",
+        hint: "🕵️ عدّ التلاميذ اللي اختارهم المسيح.",
+        points: 10,
+        image: "hosanna_gospels.png"
+      },
+      {
+        text: "🌿 سؤال (Med)\nفي طقس أحد الشعانين، بنعمل دورة باكر. بتبدأ الدورة من فين؟",
+        options: [
+          "من الهيكل",
+          "من باب الكنيسة",
+          "من أمام أيقونة العذراء",
+          "من جرن المعمودية "
+        ],
+        answer: 3,
+        note: "تبدأ دورة أحد الشعانين من جرن المعمودية كرمز إن المعمودية هي باب الدخول للكنيسة والحياة الجديدة مع المسيح.",
+        hint: "🕵️ فكر في المكان اللي منه بيبدأ المؤمن حياته الجديدة.",
+        points: 15,
+        image: "hosanna_procession.png"
+      },
+      {
+        text: "⚰️ سؤال (High)\nبعد قداس أحد الشعانين تُقام صلاة مميزة تُسمى...",
+        options: [
+          "صلاة نصف الليل",
+          "صلاة الجناز العام ",
+          "صلاة الشكر",
+          "صلاة الصلح"
+        ],
+        answer: 1,
+        note: "تُقام صلاة الجناز العام بعد قداس أحد الشعانين حتى لا تُقام جنازات فردية خلال أسبوع الآلام.",
+        hint: "🕵️ بتتعمل علشان محدش يتشغل عن أحداث أسبوع الآلام.",
+        points: 20,
+        image: "general_funeral.png"
+      },
+      {
+        text: "🎶 سؤال (Low)\nفي مرد قداس أحد الشعانين، الشعب بيهتف قائلًا...",
+        options: [
+          "كيرياليسون",
+          "أوصنا لابن داود ",
+          "المجد لله في الأعالي",
+          "آمين آمين بموتك يا رب"
+        ],
+        answer: 1,
+        note: "مرد قداس أحد الشعانين هو: أوصنا لابن داود، مبارك الآتي باسم الرب.",
+        hint: "🕵️ كلمة معناها: خلصنا الآن.",
+        points: 10,
+        image: "hosanna_masses.png"
+      },
+      {
+        text: "📜 سؤال (Med)\nكلمات 'أوصنا لابن داود' مأخوذة من سفر...",
+        options: [
+          "إشعياء",
+          "المزامير ",
+          "زكريا",
+          "إرميا"
+        ],
+        answer: 1,
+        note: "الهتاف مأخوذ من مزمور 118: \"آه يا رب خلص، مبارك الآتي باسم الرب\".",
+        hint: "🕵️ نفس السفر اللي مليان تسابيح وصلوات لداود.",
+        points: 15,
+        image: "psalms_reference.png"
+      },
+      {
+        text: "🌴 سؤال (High)\nليه الكنيسة بتوزع أغصان الزيتون أو السعف على الشعب في أحد الشعانين؟",
+        options: [
+          "رمز للسلام والنصرة ",
+          "رمز للحزن",
+          "رمز للعهد القديم",
+          "رمز للصوم"
+        ],
+        answer: 0,
+        note: "السعف والزيتون بيرمزوا للسلام والنصرة، وهو نفس المعنى اللي استقبل بيه الشعب المسيح عند دخوله أورشليم.",
+        hint: "🕵️ افتكر سفر الرؤيا لما شاف يوحنا المؤمنين حاملين سعف النخل.",
+        points: 20,
+        image: "palm_branches.png"
+      },
+      /// thursday 
+      {
+        text: "🔥 تحدي  (High)\nأنت في وسط الكنيسة... فجأة بدأ الشعب يلفوا بعكس عقارب الساعة! لو مشيت معاهم، إيه الرسالة اللي هتعلنها للعالم؟",
+        options: [
+          "إني بفرح مع الكل",
+          "إني برفض الخيانة وبخرج من دائرة النعمة ",
+          "إني باحتفل زي دورة الشعانين",
+          "إني بفتكر القيامة"
+        ],
+        answer: 1,
+        note: "الدورة ضد يهوذا إعلان رفض خيانته للمسيح، ورمز إن اللي يخون يخرج من حضن النعمة للنار والظلمة.",
+        hint: "🕵️ افتكر واحد باع سيده بكام فضة!",
+        points: 20,
+        image: "judas_procession.png"
+      },
+      {
+        text: "🗡️ تحدي  (Med)\nتخيّل نفسك واقف جنب إسحق، وإيده متربطة، وسكين قربت منه... فجأة صوت من السماء بيقول: «أمسك يدك!» — السر اللي بيرمز له الموقف ده بيتقال في قداس خميس العهد. إيه هو؟",
+        options: [
+          "سر المعمودية",
+          "قسمة ذبح إسحق ",
+          "سر الكهنوت",
+          "قسمة الميلاد"
+        ],
+        answer: 1,
+        note: "قسمة ذبح إسحق رمز لذبيحة المسيح الحقيقية اللي خلّصتنا من الموت الأبدي.",
+        hint: "🕵️ ركّز في الابن الوحيد اللي كاد يُذبح كرمز.",
+        points: 15,
+        image: "isaac_offering.png"
+      },
+      {
+        text: "🍷 مغامرة  (High)\nالمسيح دعاك للعشاء الأخير. مدّ إيدك، وخد الخبز... في اللحظة دي اتأسس سر عظيم هيغيّر العالم. تفتكر إيه هو؟",
+        options: [
+          "سر الميرون",
+          "سر الإفخارستيا ",
+          "سر الاعتراف",
+          "سر الزواج"
+        ],
+        answer: 1,
+        note: "في العشاء الأخير أسس المسيح سر جسده ودمه: خذوا كلوا... خذوا اشربوا.",
+        hint: "🕵️ خبز وخمر اتحولوا لنعمة وحياة أبدية.",
+        points: 25,
+        image: "eucharist_last_supper.png"
+      },
+      {
+        text: "🚿 مهمة  (Low)\nالمسيح اتحزم بمنشفة، ونزل يغسل رجلك. ليه بيعمل كده؟",
+        options: [
+          "بيعلّمنا القوة",
+          "بيعلن التواضع والنقاوة ",
+          "بيثبت سلطانه",
+          "بيحضّر للقيامة"
+        ],
+        answer: 1,
+        note: "غسل الأرجل إعلان للتواضع والنقاوة استعدادًا للتناول.",
+        hint: "🕵️ لو ما اغتسلتش معاه، مفيش نصيب ليك.",
+        points: 10,
+        image: "washing_feet.png"
+      },
+      {
+        text: "⚔️ تحدي  (High)\nيهوذا لسه خارج من العشاء، والظلام بيغطي المشهد... إيه أكتر درس تتعلمه علشان ما تقعش في نفس الخيانة؟",
+        options: [
+          "أكون يقظ وأصلي ",
+          "أبعد عن أصحابي",
+          "أحتفظ بالمال كويس",
+          "أهرب من القداس"
+        ],
+        answer: 0,
+        note: "اليقظة والصلاة هما السلاح ضد السقوط في تجربة الخيانة زي يهوذا.",
+        hint: "🕵️ تذكّر كلام المسيح لتلاميذه في البستان: «اسهروا وصلّوا لئلا تدخلوا في تجربة».",
+        points: 20,
+        image: "judas_exit.png"
+      },
+
+      {
+          text: "رتب هذه الأحداث: (أ) العشاء الأخير (ب) القبض على المسيح (ج) غسل الأرجل",
+          options: ["أ-ب-ج", "ج-أ-ب", "ب-أ-ج", "أ-ج-ب"],
+          answer: 1,
+          note: "المسيح غسل الأرجل ثم العشاء الأخير ثم القبض عليه.",
+          hint: "تبدأ بالخدمة والتواضع قبل العشاء.",
+          points: 20,
+          image: ""
+        },
+
+        /////friday
+        {
+          text: "🌿 سؤال  (Low)\nلماذا اختار الرب يسوع أن يدخل أورشليم راكبًا على جحش وليس حصان ملكي؟",
+          options: [
+            "لإظهار قوته العسكرية",
+            "ليعلن ملكوت روحي مبني على التواضع ✅",
+            "ليحقق حلم الشعب السياسي",
+            "لأنه لم يجد حصانًا"
+          ],
+          answer: 1,
+          note: "المسيح دخل أورشليم كملك وديع محققًا نبوّة زكريا: «هوذا ملكك يأتي إليك... وديع وراكب على جحش ابن أتان» (زكريا 9:9).",
+          hint: "🕵️ اركّز في معنى الجحش كرمز للتواضع.",
+          points: 20,
+          image: "donkey_entry.png"
+        },
+        {
+          text: "🌿 سؤال  (Med)\nما المعنى الرمزي لسعف النخل في أحد الشعانين؟",
+          options: [
+            "الزينة في المواسم",
+            "الفرح والانتصار ✅",
+            "ذكرى الخروج من مصر",
+            "رمز الحزن والتوبة"
+          ],
+          answer: 1,
+          note: "سعف النخل رمز الفرح والنصرة، وبيظهر أيضًا في سفر الرؤيا مع القديسين الواقفين أمام العرش.",
+          hint: "🕵️ افتكر سفر الرؤيا.",
+          points: 20,
+          image: "palm_leaves.png"
+        },
+        {
+          text: "⚖️ سؤال  (Med)\nفي أي ساعة انعقد المجمع اليهودي وأصدر حكم الموت على المسيح؟",
+          options: [
+            "الساعة الأولى ✅",
+            "الساعة الثالثة",
+            "الساعة السادسة",
+            "الساعة التاسعة"
+          ],
+          answer: 0,
+          note: "في الساعة الأولى صباحًا اجتمع المجمع وأرسلوا المسيح لبيلاطس.",
+          hint: "🕵️ أول ساعة من النهار اليهودي.",
+          points: 20,
+          image: "council.png"
+        },
+        {
+          text: "✝️ سؤال  (Med)\nفي أي ساعة ابتدأ صلب المسيح بحسب البشائر؟",
+          options: [
+            "الساعة الأولى",
+            "الساعة الثالثة ✅",
+            "الساعة السادسة",
+            "الساعة التاسعة"
+          ],
+          answer: 1,
+          note: "صلب المسيح في الساعة الثالثة (حوالي التاسعة صباحًا).",
+          hint: "🕵️ نفس الساعة اللي نرنم فيها لحن الغولغوثا.",
+          points: 20,
+          image: "crucifixion.png"
+        },
+        {
+          text: "🌑 سؤال  (High)\nمن أي ساعة إلى أي ساعة حدثت الظلمة على الأرض كلها يوم الجمعة العظيمة؟",
+          options: [
+            "من الثالثة إلى السادسة",
+            "من السادسة إلى التاسعة ✅",
+            "من التاسعة إلى الحادية عشرة",
+            "طوال اليوم"
+          ],
+          answer: 1,
+          note: "الظلمة عمت الأرض كلها من الساعة السادسة حتى التاسعة.",
+          hint: "🕵️ ثلاث ساعات منتصف النهار.",
+          points: 25,
+          image: "darkness.png"
+        },
+        {
+          text: "👩‍🦰 سؤال  (Med)\nعند الصليب، أوصى المسيح يوحنا بخصوص العذراء مريم. ماذا قال؟",
+          options: [
+            "اعتني بأمك",
+            "هوذا أمك ✅",
+            "لا تتركيها وحدها",
+            "اهتمي بها"
+          ],
+          answer: 1,
+          note: "قال الرب ليوحنا: «هوذا أمك»، وسلمه العذراء ليهتم بها كابن لها.",
+          hint: "🕵️ وصية عائلية في لحظة صليب.",
+          points: 20,
+          image: "mary_john.png"
+        },
+        {
+          text: "😢 سؤال  (High)\nفي أي ساعة صرخ المسيح قائلاً: «إلهي، إلهي، لماذا تركتني؟»؟",
+          options: [
+            "الساعة الثالثة",
+            "الساعة السادسة",
+            "الساعة التاسعة ✅",
+            "الساعة الحادية عشرة"
+          ],
+          answer: 2,
+          note: "في الساعة التاسعة، صرخ المسيح بصوت عظيم قبل أن يسلم الروح.",
+          hint: "🕵️ الساعة اللي بيها انشق حجاب الهيكل.",
+          points: 25,
+          image: "veil_temple.png"
+        },
+        {
+          text: "🪦 سؤال  (Low)\nمن الذي طلب جسد المسيح من بيلاطس ليدفنه في قبر جديد؟",
+          options: [
+            "قيافا",
+            "يوسف الرامي ✅",
+            "سمعان القيرواني",
+            "نيقوديموس"
+          ],
+          answer: 1,
+          note: "يوسف الرامي طلب الجسد ووضعه في قبر جديد بمساعدة نيقوديموس.",
+          hint: "🕵️ اسمه مرتبط بكلمة الرامة.",
+          points: 15,
+          image: "joseph_arimathea.png"
+        },
+        {
+          text: "🚿 سؤال  (Workshop)\nفي خميس العهد، ما الذي فعله المسيح لتعليم التلاميذ التواضع والخدمة؟",
+          options: [
+            "أعطاهم خبزًا جديدًا",
+            "غسل أرجلهم ✅",
+            "وزع عليهم السمك",
+            "أوصاهم بالصلاة"
+          ],
+          answer: 1,
+          note: "في لقان خميس العهد، غسل المسيح أرجل التلاميذ ليعلّمهم أن من يريد أن يكون أولاً فليكن خادمًا للجميع.",
+          hint: "🕵️ حدث مرتبط بالماء والحب العملي.",
+          points: 20,
+          image: "washing_feet.png"
+        }
+
+          ];
+
+    // متغيرات اللعبة
+    let currentQuestion = 0;
+    let score = 0;
+    let lives = 3;
+    let totalTime = 120; // تم تصحيح الوقت إلى 120 ثانية بدلاً من 1000
+    let time = totalTime;
+    let timer;
+    let teamName = "";
+    let teamCode = "";
+    let answeredCorrectly = Array(questions.length).fill(false);
+    let firstAttempt = Array(questions.length).fill(true);
+    let usedHint = Array(questions.length).fill(false);
+    let adminMode = false; // وضع المدير
+
+    // عناصر الصفحة
+    const themeToggle = document.getElementById('themeToggle');
+    const correctSound = document.getElementById('correctSound');
+    const wrongSound = document.getElementById('wrongSound');
+    const endSound = document.getElementById('endSound');
+
+    // الأكواد المسموحة
+    const validCodes = ["P111", "P222", "P333", "P000"];
+
+    function goToRules() {
+      teamName = document.getElementById('teamName').value.trim();
+      teamCode = document.getElementById('teamCode').value.trim();
+      
+      if (!teamName) {
+        alert('الرجاء إدخال اسم الفريق');
+        return;
+      }
+      
+      // التحقق من صحة الكود
+      if (!validCodes.includes(teamCode)) {
+        alert('كود الخادم غير صحيح. الرجاء إدخال كود صالح.');
+        return;
+      }
+      
+      // تفعيل وضع المدير إذا كان الكود P000
+      if (teamCode === "P000") {
+        adminMode = true;
+        alert('تم تفعيل وضع المدير! يمكنك رؤية جميع الإجابات والتنقل بحرية.');
+      }
+      
+      document.getElementById('welcome').classList.add('hidden');
+      document.getElementById('rules').classList.remove('hidden');
+    }
+
+    function startGame() {
+      document.getElementById('rules').classList.add('hidden');
+      document.getElementById('game').classList.remove('hidden');
+      loadQuestion();
+      startTimer();
+    }
+
+    function startTimer() {
+      clearInterval(timer);
+      timer = setInterval(() => {
+        time--;
+        updateGameStats();
+        
+        if (time <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function updateGameStats() {
+      document.getElementById('time').textContent = time;
+      document.getElementById('livesCount').textContent = lives;
+      document.getElementById('score').textContent = score;
+      document.getElementById('progress').style.width = `${(time / totalTime) * 100}%`;
+    }
+
+    function loadQuestion() {
+      const q = questions[currentQuestion];
+      const questionEl = document.getElementById('questionText');
+      const optionsEl = document.getElementById('options');
+      const imageEl = document.getElementById('questionImage');
+      
+      questionEl.textContent = q.text;
+      document.getElementById('questionPoints').textContent = q.points;
+      
+      if (q.image) {
+        imageEl.src = q.image;
+        imageEl.classList.remove('hidden');
+      } else {
+        imageEl.classList.add('hidden');
+      }
+      
+      optionsEl.innerHTML = '';
+      q.options.forEach((option, index) => {
+        const optionEl = document.createElement('div');
+        optionEl.classList.add('option');
+        
+        // في وضع المدير، نضيف علامة على الإجابة الصحيحة
+        if (adminMode && index === q.answer) {
+          optionEl.textContent = option + " ✅";
+        } else {
+          optionEl.textContent = option;
+        }
+        
+        optionEl.onclick = () => checkAnswer(index, optionEl);
+        optionsEl.appendChild(optionEl);
+      });
+      
+      document.getElementById('hint').classList.add('hidden');
+      document.getElementById('feedback').classList.add('hidden');
+      
+      // في وضع المدير، لا يتم تعطيل أي أزرار
+      if (!adminMode) {
+        document.getElementById('hintBtn').disabled = answeredCorrectly[currentQuestion] || usedHint[currentQuestion];
+      } else {
+        document.getElementById('hintBtn').disabled = false;
+      }
+      
+      updateNavButtons();
+    }
+
+    function checkAnswer(selectedIndex, optionEl) {
+      const q = questions[currentQuestion];
+      const feedbackEl = document.getElementById('feedback');
+      
+      if (selectedIndex === q.answer) {
+        // إجابة صحيحة
+        optionEl.classList.add('correct');
+        feedbackEl.textContent = q.note;
+        feedbackEl.classList.add('correct');
+        feedbackEl.classList.remove('hidden');
+        
+        if (!answeredCorrectly[currentQuestion]) {
+          const points = firstAttempt[currentQuestion] ? q.points : Math.floor(q.points / 2);
+          score += points;
+          answeredCorrectly[currentQuestion] = true;
+          updateGameStats();
+          
+          // تشغيل صوت الإجابة الصحيحة
+          correctSound.currentTime = 0;
+          correctSound.play();
+        }
+        
+        disableOptions();
+      } else {
+        // إجابة خاطئة
+        optionEl.classList.add('wrong');
+        document.querySelector('.container').classList.add('shake');
+        setTimeout(() => {
+          document.querySelector('.container').classList.remove('shake');
+        }, 500);
+        
+        firstAttempt[currentQuestion] = false;
+        
+        // في وضع المدير، لا نخسر أي شيء
+        if (!adminMode) {
+          lives--;
+          time -= 10;
+        }
+        
+        if (lives <= 0) {
+          endGame();
+        }
+        
+        updateGameStats();
+        
+        // تشغيل صوت الإجابة الخاطئة
+        wrongSound.currentTime = 0;
+        wrongSound.play();
+      }
+      
+      updateNavButtons();
+    }
+
+    function showHint() {
+      // في وضع المدير، لا نخسر وقتاً عند طلب التلميح
+      if (!adminMode) {
+        if (usedHint[currentQuestion] || answeredCorrectly[currentQuestion]) return;
+        
+        time -= 15;
+        if (time < 0) time = 0;
+      }
+      
+      usedHint[currentQuestion] = true;
+      document.getElementById('hint').textContent = questions[currentQuestion].hint;
+      document.getElementById('hint').classList.remove('hidden');
+      
+      // في وضع المدير، لا يتم تعطيل زر التلميح
+      if (!adminMode) {
+        document.getElementById('hintBtn').disabled = true;
+      }
+      
+      updateGameStats();
+    }
+
+    function updateNavButtons() {
+      // في وضع المدير، تكون جميع أزرار التنقل متاحة دائماً
+      if (adminMode) {
+        document.getElementById('prevBtn').classList.toggle('hidden', currentQuestion === 0);
+        document.getElementById('nextBtn').classList.toggle('hidden', currentQuestion === questions.length - 1);
+        document.getElementById('finishBtn').classList.toggle('hidden', false);
+      } else {
+        // للحسابات العادية
+        document.getElementById('prevBtn').classList.toggle('hidden', currentQuestion === 0);
+        
+        // زر التالي يعمل فقط إذا تمت الإجابة على السؤال الحالي
+        const canGoNext = answeredCorrectly[currentQuestion] || adminMode;
+        document.getElementById('nextBtn').classList.toggle('hidden', !canGoNext || currentQuestion === questions.length - 1);
+        
+        // زر الإنهاء يظهر فقط في السؤال الأخير إذا تمت الإجابة عليه
+        document.getElementById('finishBtn').classList.toggle('hidden', 
+          currentQuestion !== questions.length - 1 || !answeredCorrectly[currentQuestion]);
+      }
+    }
+
+    function nextQuestion() {
+      // في وضع المدير، يمكن التنقل بحرية
+      if (adminMode) {
+        if (currentQuestion < questions.length - 1) {
+          currentQuestion++;
+          loadQuestion();
+        }
+      } 
+      // للحسابات العادية، يمكن التالي فقط إذا تمت الإجابة على السؤال
+      else if (answeredCorrectly[currentQuestion] && currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+      }
+    }
+
+    function endGame() {
+      clearInterval(timer);
+      
+      // تشغيل صوت نهاية اللعبة
+      endSound.currentTime = 0;
+      endSound.play();
+      
+      const totalPoints = questions.reduce((sum, q) => sum + q.points, 0);
+      const finalScoreEl = document.getElementById('finalScore');
+      
+      finalScoreEl.innerHTML = `
+        <p><strong>اسم الفريق:</strong> ${teamName}</p>
+        <p><strong>النقاط:</strong> ${score} من ${totalPoints}</p>
+        <p><strong>الوقت المتبقي:</strong> ${time} ثانية</p>
+        <p><strong>المحاولات المتبقية:</strong> ${lives}</p>
+      `;
+      
+      document.getElementById('game').classList.add('hidden');
+      document.getElementById('end').classList.remove('hidden');
+    }
+
+    function disableOptions() {
+      document.querySelectorAll('.option').forEach(opt => {
+        opt.style.pointerEvents = 'none';
+      });
+    }
+
+    function confirmEnd() {
+      if (confirm('هل تريد إنهاء المسابقة الآن؟')) {
+        endGame();
+      }
+    }
+
+    function reviewQuestions() {
+      document.getElementById('end').classList.add('hidden');
+      document.getElementById('game').classList.remove('hidden');
+      currentQuestion = 0;
+      loadQuestion();
+    }
+
+    // تبديل الثيم (كما هو)
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      document.body.classList.toggle('light');
+      themeToggle.textContent = document.body.classList.contains('dark') ? '🌞' : '🌙';
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    // تحميل الثيم المحفوظ
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark');
+      document.body.classList.remove('light');
+      themeToggle.textContent = '🌞';
+    } else {
+      document.body.classList.add('light');
+      document.body.classList.remove('dark');
+      themeToggle.textContent = '🌙';
+    }
+  </script>
+</body>
+</html>
